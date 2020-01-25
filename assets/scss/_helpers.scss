@@ -1,11 +1,83 @@
+@import "variables";
+
+// Colors
+.text {
+  &--white {
+    color: $white;
+  }
+  &--black {
+    color: $black;
+  }
+  &--light {
+    color: $light;
+  }
+}
+
+// Background Colors
+.bg {
+  &--white {
+    background-color: $white;
+  }
+  &--black {
+    background-color: $black;
+  }
+  &--light {
+    background-color: $light;
+  }
+}
+
+// Text Alignent
 .align {
-  &-left {
+  &--left {
     text-align: left;
   }
-  &-center {
+  &--center {
     text-align: center;
   }
-  &-right {
+  &--right {
     text-align: right;
   }
+}
+
+// Flex
+.flex {
+  display: flex;
+
+  &--centered {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+// Width
+.w {
+  &--100p,
+  &--full {
+    width: 100%;
+  }
+  &--50p,
+  &--half {
+    width: 50%;
+  }
+}
+
+// Margin
+.mb {
+  &--2 {
+    margin-bottom: 2rem;
+  }
+  &--1 {
+    margin-bottom: 1rem;
+  }
+  &--05 {
+    margin-bottom: .5rem;
+  }
+  &--0 {
+    margin-bottom: 0 !important;
+  }
+}
+
+.responsive--wrapper {
+  min-width: 50rem;
+  overflow-x: auto;
 }

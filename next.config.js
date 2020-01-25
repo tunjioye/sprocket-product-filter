@@ -1,13 +1,12 @@
-const withCSS = require("@zeit/next-css")
-const withScss = require("@zeit/next-sass")
-const withLess = require("@zeit/next-less")
+const withPlugins = require('next-compose-plugins')
+const sass = require('@zeit/next-sass')
+const less = require('@zeit/next-less')
 
-module.exports = withCSS(
-  withScss(
-    withLess({
-      lessLoaderOptions: {
-        javascriptEnabled: true
-      }
-    })
-  )
-)
+module.exports = withPlugins([
+  [sass],
+  [less, {
+    lessLoaderOptions: {
+      javascriptEnabled: true
+    }
+  }],
+])
