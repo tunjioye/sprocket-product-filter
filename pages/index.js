@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import '../assets/scss/index.scss'
 
 class IndexPage extends React.Component {
   render() {

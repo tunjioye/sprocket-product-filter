@@ -7,14 +7,18 @@
     "start": "next start"
   },
   "dependencies": {
+    "@zeit/next-css": "^0.2.1-canary.4",
+    "@zeit/next-less": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
+    "less": "^3.10.3",
     "next": "latest",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-redux": "^7.1.0",
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.8",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "rsuite": "^4.2.0"
   },
   "license": "ISC"
 }
