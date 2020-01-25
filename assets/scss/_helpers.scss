@@ -77,6 +77,13 @@
   }
 }
 
+// Font
+.font {
+  &__size--xlarge {
+    font-size: x-large;
+  }
+}
+
 .responsive--wrapper {
   min-width: 50rem;
   overflow-x: auto;
