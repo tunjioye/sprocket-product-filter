@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { startClock, serverRenderClock } from '../store'
 import Examples from '../components/examples'
+import '../assets/scss/index.scss'
 
 class Index extends React.Component {
   static getInitialProps({ reduxStore, req }) {
