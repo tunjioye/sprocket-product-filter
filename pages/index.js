@@ -1,29 +1,23 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { startClock, serverRenderClock } from '../store'
-import Examples from '../components/examples'
 import '../assets/scss/index.scss'
 
-class Index extends React.Component {
-  static getInitialProps({ reduxStore, req }) {
-    const isServer = !!req
-    reduxStore.dispatch(serverRenderClock(isServer))
-
-    return {}
-  }
-
-  componentDidMount() {
-    const { dispatch } = this.props
-    this.timer = startClock(dispatch)
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timer)
-  }
-
+class IndexPage extends React.Component {
   render() {
-    return <Examples />
+    return (
+      <>
+        <h1 className="align-center">Welcome</h1>
+      </>
+    )
   }
 }
 
-export default connect()(Index)
+const mapStateToProps = () => {
+  return {}
+}
+
+const mapDispatchToProps = () => {
+  return {}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(IndexPage)
