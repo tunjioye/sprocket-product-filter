@@ -16,11 +16,10 @@ import {
   Pagination
 } from 'rsuite'
 import Products from '../components/Products'
+import PaginationCode from '../components/PaginationCode'
 import axios from 'axios'
-import { API_URL } from '../config'
+import { API_URL, DEFAULT_LIMIT } from '../config'
 import Helpers from '../lib/utils/helpers'
-
-const DEFAULT_LIMIT = 3
 
 class IndexPage extends React.Component {
   constructor (props) {
@@ -64,6 +63,8 @@ class IndexPage extends React.Component {
 
     return {
       products,
+      paginatedProducts: products.slice(0, DEFAULT_LIMIT),
+      productsTotal: products.length,
       errorMessage: finalErrorMessage,
       priceLowestBound: Helpers.calculateLowestPriceBound(products),
       priceHighestBound: Helpers.calculateHighestPriceBound(products),
@@ -77,7 +78,9 @@ class IndexPage extends React.Component {
       [key]: value
     })
 
-    this.filterProducts()
+    setTimeout(() => {
+      if (filterProducts) this.filterProducts()
+    }, 300)
   }
 
   handleSearchButtonClick (e) {
@@ -111,7 +114,7 @@ class IndexPage extends React.Component {
     // set sort_order based on sort_attribute
     if (sort_attribute && !sort_order) {
       this.setState({
-        sort_order: 'asc'
+        sort_order: 'desc'
       })
     }
     if (!sort_attribute) {
@@ -121,7 +124,7 @@ class IndexPage extends React.Component {
     }
 
     // pagination
-    let offset = limit * currentPage
+    let offset = (limit * currentPage) - limit
     offset = (offset > 0) ? offset : 0
 
     let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
@@ -153,14 +156,21 @@ class IndexPage extends React.Component {
         }
       })
 
-      if (Array.isArray(data)) {
+      const {
+        products,
+        total
+      } = data
+
+      if (Array.isArray(products)) {
         this.setState({
-          products: data,
+          products,
+          paginatedProducts: products,
+          productsTotal: total,
           errorMessage: '',
-          priceLowestBound: Helpers.calculateLowestPriceBound(data),
-          priceHighestBound: Helpers.calculateHighestPriceBound(data),
-          tags: Helpers.getAllTags(data),
-          countries: Helpers.getAllCountries(data)
+          priceLowestBound: Helpers.calculateLowestPriceBound(products),
+          priceHighestBound: Helpers.calculateHighestPriceBound(products),
+          tags: Helpers.getAllTags(products),
+          countries: Helpers.getAllCountries(products)
         })
       }
     } catch (error) {
@@ -180,6 +190,8 @@ class IndexPage extends React.Component {
   render() {
     const {
       products,
+      paginatedProducts,
+      productsTotal,
       searchQuery,
       loading,
       priceLowestBound,
@@ -194,7 +206,7 @@ class IndexPage extends React.Component {
 
     return (
       <>
-        <div className="content--wrapper">
+        <div>
           <section className="section flex flex--centered">
             <h2>Sprocket API Demo</h2>
           </section>
@@ -216,7 +228,7 @@ class IndexPage extends React.Component {
             <FlexboxGrid justify="center">
               <FlexboxGrid.Item componentClass={Col} colspan={24} md={22}>
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item className="mb--2" componentClass={Col} colspan={24} xs={5}>
+                  <FlexboxGrid.Item className="mb--2" componentClass={Col} colspan={24} md={5}>
                     <div className="mb--1">
                       <h6 className="mb--05">
                         <small>Filter By</small>
@@ -293,24 +305,10 @@ class IndexPage extends React.Component {
                       </div>
                     </div>
                   </FlexboxGrid.Item>
-                  <FlexboxGrid.Item componentClass={Col} colspan={24} xs={18}>
+                  <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
                     <h3 className="align--center mb--2">Products List</h3>
                     <div className="align--center mb--1">
-                      result : <b>{products.length} products</b> | search : <b>{searchQuery}</b> | price range : <b>{priceLowestBound},{priceHighestBound}</b> | country : <b>{country}</b> | sort by : <b>{sort_attribute}</b> | sort order : <b>{sort_order}</b>
-                    </div>
-                    <div className="align--center mb--1">
-                      <Pagination
-                        prev
-                        next
-                        first
-                        last
-                        ellipsis
-                        boundaryLinks
-                        pages={parseInt(products.length/limit)}
-                        maxButtons={5}
-                        activePage={currentPage}
-                        onSelect={(value) => this.handleInputChange('searchQuery', value)}
-                      />
+                      result : <b>{productsTotal || '--'} products</b> | search : <b>{searchQuery || '--'}</b> | price range : <b>{priceLowestBound || '0'},{priceHighestBound || '0'}</b> | country : <b>{country || '--'}</b> | sort by : <b>{sort_attribute || '--'}</b> | sort order : <b>{sort_order || '--'}</b> | per page : <b>{limit || '--'}</b>
                     </div>
                     {loading
                       ? (
@@ -319,9 +317,15 @@ class IndexPage extends React.Component {
                         </div>
                       )
                       : (
-                          <Products products={products} />
+                          <Products products={paginatedProducts} />
                         )
-                      }
+                    }
+                    <PaginationCode
+                      productsTotal={productsTotal}
+                      limit={limit}
+                      currentPage={currentPage}
+                      handleInputChange={this.handleInputChange}
+                     />
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
               </FlexboxGrid.Item>
