@@ -6,11 +6,13 @@ import {
   FormControl,
   // ControlLabel,
   Button,
-  List,
   FlexboxGrid,
   Col,
   Loader,
-  Icon
+  RangeSlider,
+  Input,
+  Divider,
+  SelectPicker
 } from 'rsuite'
 // import data from '../data'
 import Products from '../components/Products'
@@ -24,11 +26,21 @@ class IndexPage extends React.Component {
       ...props,
       searchQuery: '',
       loading: false,
-      searchQueryResponse: false
+      searchQueryResponse: true,
+      price: 0,
+      priceLowestBound: 0,
+      priceHighestBound: 0,
+      tags: []
     }
 
-    this.updateState = this.updateState.bind(this)
     this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this)
+    this.handlePriceChange = this.handlePriceChange.bind(this)
+    this.handlePriceLowestBoundChange = this.handlePriceLowestBoundChange.bind(this)
+    this.handlePriceHighestBoundChange = this.handlePriceHighestBoundChange.bind(this)
+    this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this)
+    this.calculateLowestPriceBound = this.calculateLowestPriceBound.bind(this)
+    this.calculateHighestPriceBound = this.calculateHighestPriceBound.bind(this)
+    this.getAllTags = this.getAllTags.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
   }
 
@@ -66,16 +78,62 @@ class IndexPage extends React.Component {
     }
   }
 
-  updateState (key, value)  {
-    this.setState({
-      [key]: value
-    })
-  }
-
   handleSearchQueryChange (value) {
     this.setState({
       searchQuery: value
     })
+  }
+
+  handlePriceChange (value) {
+    this.setState({
+      price: value
+    })
+  }
+
+  handlePriceLowestBoundChange (value) {
+    this.setState({
+      priceLowestBound: value
+    })
+  }
+
+  handlePriceHighestBoundChange (value) {
+    this.setState({
+      priceHighestBound: value
+    })
+  }
+
+  handlePriceRangeChange (rangeValue) {
+    this.setState({
+      priceLowestBound: rangeValue[0],
+      priceHighestBound: rangeValue[1]
+    })
+  }
+
+  calculateLowestPriceBound (products) {
+    const productWithLowestPrice = products.reduce((prev, current) => {
+      return (prev.price > current.price) ? prev : current
+    })
+    return productWithLowestPrice.price
+  }
+
+  calculateHighestPriceBound (products) {
+    const productWithHighestPrice = products.reduce((prev, current) => {
+      return (prev.price < current.price) ? prev : current
+    })
+    return productWithHighestPrice.price
+  }
+
+  getAllTags (products) {
+    let allTags = products.reduce((prev, current) => {
+      return prev.concat(current.tags)
+    }, [])
+    allTags = allTags.map(tag => {
+      return {
+        label: tag,
+        value: tag
+      }
+    })
+    return allTags
   }
 
   async handleSearchButtonClick () {
@@ -94,7 +152,11 @@ class IndexPage extends React.Component {
 
       if (Array.isArray(data)) {
         this.setState({
-          products: data
+          products: data,
+          searchQueryResponse: true,
+          priceLowestBound: this.calculateLowestPriceBound(data),
+          priceHighestBound: this.calculateHighestPriceBound(data),
+          tags: this.getAllTags(data)
         })
       }
     } catch (error) {
@@ -127,7 +189,10 @@ class IndexPage extends React.Component {
     const {
       searchQuery,
       loading,
-      searchQueryResponse
+      searchQueryResponse,
+      priceLowestBound,
+      priceHighestBound,
+      tags
     } = this.state
 
     return (
@@ -154,7 +219,63 @@ class IndexPage extends React.Component {
                     <Loader size="md" content="Loading Products ..." />
                   </div>
                 )
-                : <Products products={products} />
+                : searchQueryResponse
+                  ? (
+                    <FlexboxGrid>
+                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={5}>
+                        <div className="mb--1">
+                          <h6 className="mb--1">Price</h6>
+                          <div>
+                            <FlexboxGrid className="mb--05" justify="space-between">
+                              <FlexboxGrid.Item componentClass={Col} colspan={11}>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  max={priceHighestBound}
+                                  step="0.01"
+                                  placeholder="0"
+                                  value={priceLowestBound}
+                                  onChange={this.handlePriceLowestBoundChange}
+                                />
+                              </FlexboxGrid.Item>
+                              <FlexboxGrid.Item componentClass={Col} colspan={11}>
+                                <Input
+                                  type="number"
+                                  min={priceLowestBound}
+                                  max={priceHighestBound}
+                                  step="0.01"
+                                  placeholder="0"
+                                  value={priceHighestBound}
+                                  onChange={this.handlePriceHighestBoundChange}
+                                />
+                              </FlexboxGrid.Item>
+                            </FlexboxGrid>
+                          </div>
+                        </div>
+                        <Divider />
+                        <div className="mb--1">
+                          <h6 className="mb--1">Tags</h6>
+                          <div>
+                            <SelectPicker
+                              data={tags}
+                              appearance="default"
+                              placeholder="Tags"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        </div>
+                        <Divider />
+                      </FlexboxGrid.Item>
+                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={1}>
+                      </FlexboxGrid.Item>
+                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
+                        <Products products={products} />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  )
+                  : (
+                    <Products products={products} />
+                  )
               }
             </FlexboxGrid.Item>
           </FlexboxGrid>
