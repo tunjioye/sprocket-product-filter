@@ -90,6 +90,11 @@
   }
 }
 
+.content--wrapper {
+  min-width: 75rem;
+  overflow-x: auto;
+}
+
 .responsive--wrapper {
   min-width: 50rem;
   overflow-x: auto;

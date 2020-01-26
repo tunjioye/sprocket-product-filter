@@ -30,16 +30,10 @@ class IndexPage extends React.Component {
   constructor (props) {
     super(props)
 
-    const {
-      priceLowestBound = 0,
-      priceHighestBound = 0
-    } = props
-
     this.state = {
       ...props,
       searchQuery: '',
       loading: false,
-      price: `${priceLowestBound}, ${priceHighestBound}`,
       country: null,
       sort_attribute: null,
       sort_order: null,
@@ -112,7 +106,6 @@ class IndexPage extends React.Component {
 
     // reset filtering and sorting fields
     this.setState({
-      price: '0, 0',
       country: null,
       sort_attribute: null,
       sort_order: null,
@@ -128,6 +121,8 @@ class IndexPage extends React.Component {
   filterProducts () {
     const {
       searchQuery,
+      priceLowestBound,
+      priceHighestBound,
       country,
       sort_attribute,
       sort_order
@@ -146,6 +141,9 @@ class IndexPage extends React.Component {
     }
 
     let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
+    queryUrl = (priceLowestBound && priceHighestBound)
+      ? `${queryUrl}&price=${priceLowestBound},${priceHighestBound}`
+      : queryUrl
     queryUrl = (country)
       ? `${queryUrl}&country=${country}`
       : queryUrl
@@ -168,13 +166,10 @@ class IndexPage extends React.Component {
       })
 
       if (Array.isArray(data)) {
-        const priceLowestBound = calculateLowestPriceBound(data)
-        const priceHighestBound = calculateHighestPriceBound(data)
         this.setState({
           products: data,
-          price: `${priceLowestBound}, ${priceHighestBound}`,
-          priceLowestBound,
-          priceHighestBound,
+          priceLowestBound: calculateLowestPriceBound(data),
+          priceHighestBound: calculateHighestPriceBound(data),
           tags: getAllTags(data),
           countries: getAllCountries(data)
         })
@@ -209,7 +204,6 @@ class IndexPage extends React.Component {
       loading,
       priceLowestBound,
       priceHighestBound,
-      price,
       countries,
       country,
       sort_attribute,
@@ -320,7 +314,7 @@ class IndexPage extends React.Component {
                   <FlexboxGrid.Item componentClass={Col} colspan={24} xs={18}>
                     <h3 className="align--center mb--2">Products List</h3>
                     <div className="align--center mb--1">
-                      result : <b>{products.length} products</b> | search : <b>{searchQuery}</b> | price range : <b>{price}</b> | country : <b>{country}</b> | sort by : <b>{sort_attribute}</b> | sort order : <b>{sort_order}</b>
+                      result : <b>{products.length} products</b> | search : <b>{searchQuery}</b> | price range : <b>{priceLowestBound},{priceHighestBound}</b> | country : <b>{country}</b> | sort by : <b>{sort_attribute}</b> | sort order : <b>{sort_order}</b>
                     </div>
                     {loading
                       ? (
