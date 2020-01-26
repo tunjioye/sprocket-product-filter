@@ -36,14 +36,14 @@ const ProductList = props => {
         </FlexboxGrid.Item>
         {/*price*/}
         <FlexboxGrid.Item colspan={4} style={styleCenter}>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'center' }}>
             <div style={slimText}>Price</div>
             <div style={dataStyle}>{price}</div>
           </div>
         </FlexboxGrid.Item>
         {/*tags*/}
         <FlexboxGrid.Item colspan={4} style={styleCenter}>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'center' }}>
             <div style={slimText}>Tags</div>
             <div style={dataStyle}>
               <small>{tags.join(' |')}</small>
@@ -52,7 +52,7 @@ const ProductList = props => {
         </FlexboxGrid.Item>
         {/*country*/}
         <FlexboxGrid.Item colspan={4} style={styleCenter}>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'center' }}>
             <div style={slimText}>Country</div>
             <div style={dataStyle}>
               <small>{country}</small>
@@ -60,7 +60,7 @@ const ProductList = props => {
           </div>
         </FlexboxGrid.Item>
         {/*created_at*/}
-        <FlexboxGrid.Item colspan={4} style={styleCenter}>
+        <FlexboxGrid.Item colspan={4} style={styleRight}>
           <div style={{ textAlign: 'right' }}>
             <div style={slimText}>Created</div>
             <div style={dataStyle}>
@@ -76,6 +76,13 @@ const ProductList = props => {
 const styleCenter = {
   display: 'flex',
   justifyContent: 'center',
+  alignItems: 'center',
+  height: '60px'
+}
+
+const styleRight = {
+  display: 'flex',
+  justifyContent: 'flex-end',
   alignItems: 'center',
   height: '60px'
 }

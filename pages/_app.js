@@ -6,7 +6,7 @@ import 'rsuite/lib/styles/index.less'
 import '../assets/scss/index.scss'
 
 class MyApp extends App {
-  render() {
+  render () {
     const { Component, pageProps, reduxStore } = this.props
     return (
       <Provider store={reduxStore}>

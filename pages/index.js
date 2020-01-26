@@ -9,10 +9,11 @@ import {
   List,
   FlexboxGrid,
   Col,
+  Loader,
   Icon
 } from 'rsuite'
 // import data from '../data'
-import ProductList from '../components/ProductList'
+import Products from '../components/Products'
 import axios from 'axios'
 import { API_URL } from '../config'
 
@@ -21,9 +22,12 @@ class IndexPage extends React.Component {
     super(props)
     this.state = {
       ...props,
-      searchQuery: ''
+      searchQuery: '',
+      loading: false,
+      searchQueryResponse: false
     }
 
+    this.updateState = this.updateState.bind(this)
     this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
   }
@@ -62,6 +66,12 @@ class IndexPage extends React.Component {
     }
   }
 
+  updateState (key, value)  {
+    this.setState({
+      [key]: value
+    })
+  }
+
   handleSearchQueryChange (value) {
     this.setState({
       searchQuery: value
@@ -70,6 +80,9 @@ class IndexPage extends React.Component {
 
   async handleSearchButtonClick () {
     const { searchQuery } = this.state
+    this.setState({
+      loading: true
+    })
 
     try{
       const queryUrl = `${API_URL}/products/search?query=${searchQuery}`
@@ -96,6 +109,10 @@ class IndexPage extends React.Component {
 
       alert(errorMessage)
     }
+
+    this.setState({
+      loading: false
+    })
   }
 
   componentDidMount () {
@@ -107,10 +124,11 @@ class IndexPage extends React.Component {
 
   render() {
     const { products } = this.state
-    const mappedProducts = products.map((product, productIndex) => (
-      <ProductList product={product} productIndex={productIndex} key={productIndex} />
-    ))
-    const { searchQuery } = this.state
+    const {
+      searchQuery,
+      loading,
+      searchQueryResponse
+    } = this.state
 
     return (
       <>
@@ -128,25 +146,18 @@ class IndexPage extends React.Component {
         </section>
         <section className="section section--sm">
           <h3 className="align--center mb--2">Products List</h3>
-          <div className="responsive--wrapper">
-            <FlexboxGrid justify="center">
-              <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
-                {products.length > 0
-                  ? (
-                    <List hover>
-                      {mappedProducts}
-                    </List>
-                  )
-                  : (
-                    <div className="section bg--light align--center text--dark">
-                      <Icon className="mb--1" icon="ban" size="3x" style={{ color: '#f44336' }} />
-                      <p className="font__size--xlarge">No Products Found</p>
-                    </div>
-                  )
-                }
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          </div>
+          <FlexboxGrid justify="center">
+            <FlexboxGrid.Item componentClass={Col} colspan={24} md={22}>
+              {loading
+                ? (
+                  <div className="align--center">
+                    <Loader size="md" content="Loading Products ..." />
+                  </div>
+                )
+                : <Products products={products} />
+              }
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </section>
       </>
     )
