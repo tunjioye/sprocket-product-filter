@@ -12,19 +12,15 @@ import {
   InputGroup,
   Divider,
   SelectPicker,
-  InputPicker
+  InputPicker,
+  Pagination
 } from 'rsuite'
 import Products from '../components/Products'
 import axios from 'axios'
 import { API_URL } from '../config'
-import {
-  calculateLowestPriceBound,
-  calculateHighestPriceBound,
-  getAllTags,
-  getAllCountries,
-  sortByOptions,
-  sortOrderOptions
-} from '../lib/utils/helpers'
+import Helpers from '../lib/utils/helpers'
+
+const DEFAULT_LIMIT = 3
 
 class IndexPage extends React.Component {
   constructor (props) {
@@ -37,12 +33,11 @@ class IndexPage extends React.Component {
       country: null,
       sort_attribute: null,
       sort_order: null,
-      limit: 100,
-      offset: 0
+      limit: DEFAULT_LIMIT,
+      currentPage: 1
     }
 
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
     this.filterProducts = this.filterProducts.bind(this)
     this.fetchProductsViaQuery = this.fetchProductsViaQuery.bind(this)
@@ -64,25 +59,16 @@ class IndexPage extends React.Component {
         products = data
       }
     } catch (error) {
-      let errorMessage = 'Network Error! Please connect to the internet and try again.'
-
-      if (error.response) {
-        const { status } = error.response
-        if (status && status >= 500) {
-          errorMessage = 'Error! Something went wrong. Please try again later.'
-        }
-      }
-
-      finalErrorMessage = errorMessage
+      finalErrorMessage = Helpers.getApiErrorMessage(error)
     }
 
     return {
       products,
       errorMessage: finalErrorMessage,
-      priceLowestBound: calculateLowestPriceBound(products),
-      priceHighestBound: calculateHighestPriceBound(products),
-      tags: getAllTags(products),
-      countries: getAllCountries(products)
+      priceLowestBound: Helpers.calculateLowestPriceBound(products),
+      priceHighestBound: Helpers.calculateHighestPriceBound(products),
+      tags: Helpers.getAllTags(products),
+      countries: Helpers.getAllCountries(products)
     }
   }
 
@@ -91,17 +77,10 @@ class IndexPage extends React.Component {
       [key]: value
     })
 
-    if (filterProducts) setTimeout(() => this.filterProducts(), 500)
+    this.filterProducts()
   }
 
-  handlePriceRangeChange (rangeValue) {
-    this.setState({
-      priceLowestBound: rangeValue[0],
-      priceHighestBound: rangeValue[1]
-    })
-  }
-
-  async handleSearchButtonClick (e) {
+  handleSearchButtonClick (e) {
     e.preventDefault()
 
     // reset filtering and sorting fields
@@ -109,23 +88,24 @@ class IndexPage extends React.Component {
       country: null,
       sort_attribute: null,
       sort_order: null,
-      limit: 100,
-      offset: 0
+      limit: DEFAULT_LIMIT,
+      currentPage: 1
     })
 
-    const { searchQuery } = this.state
-    let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
-    setTimeout(() => this.fetchProductsViaQuery(queryUrl), 500)
+    this.filterProducts()
   }
 
   filterProducts () {
     const {
       searchQuery,
+      // // FILTER BY PRICE FEATURE CODE 01
       // priceLowestBound,
       // priceHighestBound,
       country,
       sort_attribute,
-      sort_order
+      sort_order,
+      limit,
+      currentPage
     } = this.state
 
     // set sort_order based on sort_attribute
@@ -140,7 +120,12 @@ class IndexPage extends React.Component {
       })
     }
 
+    // pagination
+    let offset = limit * currentPage
+    offset = (offset > 0) ? offset : 0
+
     let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
+    // // FILTER BY PRICE FEATURE CODE 02
     // queryUrl = (priceLowestBound && priceHighestBound)
     //   ? `${queryUrl}&price=${priceLowestBound},${priceHighestBound}`
     //   : queryUrl
@@ -150,7 +135,10 @@ class IndexPage extends React.Component {
     queryUrl = (sort_attribute && sort_order)
       ? `${queryUrl}&sort_attribute=${sort_attribute}&sort_order=${sort_order}`
       : queryUrl
-    setTimeout(() => this.fetchProductsViaQuery(queryUrl), 500)
+    queryUrl = (limit)
+      ? `${queryUrl}&limit=${limit}&offset=${offset}`
+      : queryUrl
+    setTimeout(() => this.fetchProductsViaQuery(queryUrl), 300)
   }
 
   async fetchProductsViaQuery (queryUrl) {
@@ -168,23 +156,15 @@ class IndexPage extends React.Component {
       if (Array.isArray(data)) {
         this.setState({
           products: data,
-          priceLowestBound: calculateLowestPriceBound(data),
-          priceHighestBound: calculateHighestPriceBound(data),
-          tags: getAllTags(data),
-          countries: getAllCountries(data)
+          errorMessage: '',
+          priceLowestBound: Helpers.calculateLowestPriceBound(data),
+          priceHighestBound: Helpers.calculateHighestPriceBound(data),
+          tags: Helpers.getAllTags(data),
+          countries: Helpers.getAllCountries(data)
         })
       }
     } catch (error) {
-      let errorMessage = 'Network Error! Please connect to the internet and try again.'
-
-      if (error.response) {
-        const { status } = error.response
-        if (status && status >= 500) {
-          errorMessage = 'Error! Something went wrong. Please try again later.'
-        }
-      }
-
-      alert(errorMessage)
+      alert(Helpers.getApiErrorMessage(error))
     }
 
     this.setState({
@@ -198,8 +178,8 @@ class IndexPage extends React.Component {
   }
 
   render() {
-    const { products } = this.state
     const {
+      products,
       searchQuery,
       loading,
       priceLowestBound,
@@ -207,7 +187,9 @@ class IndexPage extends React.Component {
       countries,
       country,
       sort_attribute,
-      sort_order
+      sort_order,
+      limit,
+      currentPage
     } = this.state
 
     return (
@@ -289,7 +271,7 @@ class IndexPage extends React.Component {
                         <h6 className="mb--1">Sort By</h6>
                         <div>
                           <InputPicker
-                            data={sortByOptions}
+                            data={Helpers.sortByOptions()}
                             placeholder="Sort By"
                             style={{ width: '100%' }}
                             value={sort_attribute}
@@ -301,7 +283,7 @@ class IndexPage extends React.Component {
                         <h6 className="mb--1">Sort Order</h6>
                         <div>
                           <InputPicker
-                            data={sortOrderOptions}
+                            data={Helpers.sortOrderOptions()}
                             placeholder="Sort Order"
                             style={{ width: '100%' }}
                             value={sort_order}
@@ -315,6 +297,20 @@ class IndexPage extends React.Component {
                     <h3 className="align--center mb--2">Products List</h3>
                     <div className="align--center mb--1">
                       result : <b>{products.length} products</b> | search : <b>{searchQuery}</b> | price range : <b>{priceLowestBound},{priceHighestBound}</b> | country : <b>{country}</b> | sort by : <b>{sort_attribute}</b> | sort order : <b>{sort_order}</b>
+                    </div>
+                    <div className="align--center mb--1">
+                      <Pagination
+                        prev
+                        next
+                        first
+                        last
+                        ellipsis
+                        boundaryLinks
+                        pages={parseInt(products.length/limit)}
+                        maxButtons={5}
+                        activePage={currentPage}
+                        onSelect={(value) => this.handleInputChange('searchQuery', value)}
+                      />
                     </div>
                     {loading
                       ? (
