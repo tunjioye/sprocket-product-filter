@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux'
+import React from 'react'
 import ProductList from './ProductList'
 import {
   List,
@@ -14,12 +14,14 @@ const Products = props => {
   ))
 
   return (
-    <div className="responsive--wrapper">
+    <>
       {products.length > 0
         ? (
-          <List hover>
-            {mappedProducts}
-          </List>
+          <div className="responsive--wrapper">
+            <List hover>
+              {mappedProducts}
+            </List>
+          </div>
         )
         : (
           <div className="section bg--light align--center text--dark">
@@ -28,7 +30,7 @@ const Products = props => {
           </div>
         )
       }
-    </div>
+    </>
   )
 }
 

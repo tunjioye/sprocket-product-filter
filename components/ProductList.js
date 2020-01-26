@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux'
+import React from 'react'
 import {
   List,
   FlexboxGrid
@@ -31,7 +31,7 @@ const ProductList = props => {
         }}>
           <div style={titleStyle}>{title}</div>
           <div>
-            <small>{description}</small>
+            <small><i>{description}</i></small>
           </div>
         </FlexboxGrid.Item>
         {/*price*/}

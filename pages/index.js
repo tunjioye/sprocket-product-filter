@@ -26,16 +26,22 @@ import {
 class IndexPage extends React.Component {
   constructor (props) {
     super(props)
+
+    const {
+      priceLowestBound = 0,
+      priceHighestBound = 0
+    } = props
+
     this.state = {
       ...props,
       searchQuery: '',
       loading: false,
-      searchQueryResponse: true,
-      price: 0,
-      priceLowestBound: 0,
-      priceHighestBound: 0,
-      tags: [],
-      countries: []
+      showTagsFilter: false,
+      price: `${priceLowestBound}, ${priceHighestBound}`,
+      sort_attribute: '',
+      sort_order: 'asc',
+      limit: 100,
+      offset: 0
     }
 
     this.handleInputChange = this.handleInputChange.bind(this)
@@ -73,7 +79,11 @@ class IndexPage extends React.Component {
 
     return {
       products,
-      errorMessage: finalErrorMessage
+      errorMessage: finalErrorMessage,
+      priceLowestBound: calculateLowestPriceBound(products),
+      priceHighestBound: calculateHighestPriceBound(products),
+      tags: getAllTags(products),
+      countries: getAllCountries(products)
     }
   }
 
@@ -109,7 +119,6 @@ class IndexPage extends React.Component {
       if (Array.isArray(data)) {
         this.setState({
           products: data,
-          searchQueryResponse: true,
           priceLowestBound: calculateLowestPriceBound(data),
           priceHighestBound: calculateHighestPriceBound(data),
           tags: getAllTags(data),
@@ -146,10 +155,10 @@ class IndexPage extends React.Component {
     const {
       searchQuery,
       loading,
-      searchQueryResponse,
       priceLowestBound,
       priceHighestBound,
       tags,
+      showTagsFilter,
       countries
     } = this.state
 
@@ -163,7 +172,7 @@ class IndexPage extends React.Component {
             <FormGroup className="mb--0">
               {/* <ControlLabel>Search Products</ControlLabel> */}
               <FormControl
-                placeholder="Enter Product"
+                placeholder="Search Products, title, price, country etc"
                 name="searchQuery"
                 value={searchQuery}
                 onChange={(value) => this.handleInputChange('searchQuery', value)}
@@ -182,72 +191,74 @@ class IndexPage extends React.Component {
                     <Loader size="md" content="Loading Products ..." />
                   </div>
                 )
-                : searchQueryResponse
-                  ? (
-                    <FlexboxGrid>
-                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={5}>
-                        <div className="mb--1">
-                          <h6 className="mb--1">Price</h6>
-                          <div>
-                            <InputGroup className="mb--05">
-                              <Input
-                                type="number"
-                                min={0}
-                                max={priceHighestBound}
-                                step="0.01"
-                                placeholder="0"
-                                value={priceLowestBound}
-                                onChange={(value) => this.handleInputChange('priceLowestBound', value)}
-                              />
-                              <InputGroup.Addon>to</InputGroup.Addon>
-                              <Input
-                                type="number"
-                                min={priceLowestBound}
-                                max={priceHighestBound}
-                                step="0.01"
-                                placeholder="0"
-                                value={priceHighestBound}
-                                onChange={(value) => this.handleInputChange('priceHighestBound', value)}
-                              />
-                            </InputGroup>
-                            <Button block appearance="primary" className="mb--0" onClick={() => {console.log('filering by price')}}>Go</Button>
-                          </div>
-                        </div>
-                        <Divider />
-                        <div className="mb--1">
-                          <h6 className="mb--1">Tags</h6>
-                          <div>
-                            <SelectPicker
-                              data={tags}
-                              appearance="default"
-                              placeholder="Select Tag"
-                              style={{ width: '100%' }}
+                : (
+                  <FlexboxGrid>
+                    <FlexboxGrid.Item className="mb--2" componentClass={Col} colspan={24} md={5}>
+                      <div className="mb--1">
+                        <h6 className="mb--1">Price</h6>
+                        <div>
+                          <InputGroup className="mb--05">
+                            <Input
+                              type="number"
+                              min={0}
+                              max={priceHighestBound}
+                              step="0.01"
+                              placeholder="0"
+                              value={priceLowestBound}
+                              onChange={(value) => this.handleInputChange('priceLowestBound', value)}
                             />
-                          </div>
-                        </div>
-                        <Divider />
-                        <div className="mb--1">
-                          <h6 className="mb--1">Countries</h6>
-                          <div>
-                            <SelectPicker
-                              data={countries}
-                              appearance="default"
-                              placeholder="Select Country"
-                              style={{ width: '100%' }}
+                            <InputGroup.Addon>to</InputGroup.Addon>
+                            <Input
+                              type="number"
+                              min={priceLowestBound}
+                              max={priceHighestBound}
+                              step="0.01"
+                              placeholder="0"
+                              value={priceHighestBound}
+                              onChange={(value) => this.handleInputChange('priceHighestBound', value)}
                             />
-                          </div>
+                          </InputGroup>
+                          <Button block appearance="primary" className="mb--0" onClick={() => {console.log('filering by price')}}>Go</Button>
                         </div>
-                      </FlexboxGrid.Item>
-                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={1}>
-                      </FlexboxGrid.Item>
-                      <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
-                        <Products products={products} />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  )
-                  : (
-                    <Products products={products} />
-                  )
+                      </div>
+                      {showTagsFilter &&
+                        (
+                          <>
+                            <Divider />
+                            <div className="mb--1">
+                              <h6 className="mb--1">Tags</h6>
+                              <div>
+                                <SelectPicker
+                                  data={tags}
+                                  appearance="default"
+                                  placeholder="Select Tag"
+                                  style={{ width: '100%' }}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        )
+                      }
+                      <Divider />
+                      <div className="mb--1">
+                        <h6 className="mb--1">Countries</h6>
+                        <div>
+                          <SelectPicker
+                            data={countries}
+                            appearance="default"
+                            placeholder="Select Country"
+                            style={{ width: '100%' }}
+                          />
+                        </div>
+                      </div>
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item componentClass={Col} colspan={24} md={1}>
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
+                      <Products products={products} />
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                )
               }
             </FlexboxGrid.Item>
           </FlexboxGrid>
