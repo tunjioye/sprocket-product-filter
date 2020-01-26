@@ -19,7 +19,8 @@ import { API_URL } from '../config'
 import {
   calculateLowestPriceBound,
   calculateHighestPriceBound,
-  getAllTags
+  getAllTags,
+  getAllCountries
 } from '../lib/utils/helpers'
 
 class IndexPage extends React.Component {
@@ -33,7 +34,8 @@ class IndexPage extends React.Component {
       price: 0,
       priceLowestBound: 0,
       priceHighestBound: 0,
-      tags: []
+      tags: [],
+      countries: []
     }
 
     this.handleInputChange = this.handleInputChange.bind(this)
@@ -110,7 +112,8 @@ class IndexPage extends React.Component {
           searchQueryResponse: true,
           priceLowestBound: calculateLowestPriceBound(data),
           priceHighestBound: calculateHighestPriceBound(data),
-          tags: getAllTags(data)
+          tags: getAllTags(data),
+          countries: getAllCountries(data)
         })
       }
     } catch (error) {
@@ -146,7 +149,8 @@ class IndexPage extends React.Component {
       searchQueryResponse,
       priceLowestBound,
       priceHighestBound,
-      tags
+      tags,
+      countries
     } = this.state
 
     return (
@@ -216,12 +220,23 @@ class IndexPage extends React.Component {
                             <SelectPicker
                               data={tags}
                               appearance="default"
-                              placeholder="Tags"
+                              placeholder="Select Tag"
                               style={{ width: '100%' }}
                             />
                           </div>
                         </div>
                         <Divider />
+                        <div className="mb--1">
+                          <h6 className="mb--1">Countries</h6>
+                          <div>
+                            <SelectPicker
+                              data={countries}
+                              appearance="default"
+                              placeholder="Select Country"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        </div>
                       </FlexboxGrid.Item>
                       <FlexboxGrid.Item componentClass={Col} colspan={24} md={1}>
                       </FlexboxGrid.Item>
