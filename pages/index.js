@@ -8,8 +8,8 @@ import {
   FlexboxGrid,
   Col,
   Loader,
-  RangeSlider,
   Input,
+  InputGroup,
   Divider,
   SelectPicker
 } from 'rsuite'
@@ -88,7 +88,9 @@ class IndexPage extends React.Component {
     })
   }
 
-  async handleSearchButtonClick () {
+  async handleSearchButtonClick (e) {
+    e.preventDefault()
+
     const { searchQuery } = this.state
     this.setState({
       loading: true
@@ -163,7 +165,7 @@ class IndexPage extends React.Component {
                 onChange={(value) => this.handleInputChange('searchQuery', value)}
               />
             </FormGroup>
-            <Button appearance="primary" className="mb--0" onClick={this.handleSearchButtonClick}>Search</Button>
+            <Button type="submit" appearance="primary" className="mb--0" onClick={this.handleSearchButtonClick}>Search</Button>
           </Form>
         </section>
         <section className="section section--sm">
@@ -183,30 +185,28 @@ class IndexPage extends React.Component {
                         <div className="mb--1">
                           <h6 className="mb--1">Price</h6>
                           <div>
-                            <FlexboxGrid className="mb--05" justify="space-between">
-                              <FlexboxGrid.Item componentClass={Col} colspan={11}>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={priceHighestBound}
-                                  step="0.01"
-                                  placeholder="0"
-                                  value={priceLowestBound}
-                                  onChange={(value) => this.handleInputChange('priceLowestBound', value)}
-                                />
-                              </FlexboxGrid.Item>
-                              <FlexboxGrid.Item componentClass={Col} colspan={11}>
-                                <Input
-                                  type="number"
-                                  min={priceLowestBound}
-                                  max={priceHighestBound}
-                                  step="0.01"
-                                  placeholder="0"
-                                  value={priceHighestBound}
-                                  onChange={(value) => this.handleInputChange('priceHighestBound', value)}
-                                />
-                              </FlexboxGrid.Item>
-                            </FlexboxGrid>
+                            <InputGroup className="mb--05">
+                              <Input
+                                type="number"
+                                min={0}
+                                max={priceHighestBound}
+                                step="0.01"
+                                placeholder="0"
+                                value={priceLowestBound}
+                                onChange={(value) => this.handleInputChange('priceLowestBound', value)}
+                              />
+                              <InputGroup.Addon>to</InputGroup.Addon>
+                              <Input
+                                type="number"
+                                min={priceLowestBound}
+                                max={priceHighestBound}
+                                step="0.01"
+                                placeholder="0"
+                                value={priceHighestBound}
+                                onChange={(value) => this.handleInputChange('priceHighestBound', value)}
+                              />
+                            </InputGroup>
+                            <Button block appearance="primary" className="mb--0" onClick={() => {console.log('filering by price')}}>Go</Button>
                           </div>
                         </div>
                         <Divider />
@@ -240,6 +240,12 @@ class IndexPage extends React.Component {
       </>
     )
   }
+}
+
+const inputGroupButtonPrimary = {
+  color: '#fff',
+  borderBottomRightRadius: '4px',
+  borderTopRightRadius: '4px',
 }
 
 const mapStateToProps = () => {
