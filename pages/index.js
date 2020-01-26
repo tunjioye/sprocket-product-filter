@@ -4,7 +4,6 @@ import {
   Form,
   FormGroup,
   FormControl,
-  // ControlLabel,
   Button,
   FlexboxGrid,
   Col,
@@ -14,7 +13,6 @@ import {
   Divider,
   SelectPicker
 } from 'rsuite'
-// import data from '../data'
 import Products from '../components/Products'
 import axios from 'axios'
 import { API_URL } from '../config'
@@ -38,10 +36,7 @@ class IndexPage extends React.Component {
       tags: []
     }
 
-    this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this)
-    this.handlePriceChange = this.handlePriceChange.bind(this)
-    this.handlePriceLowestBoundChange = this.handlePriceLowestBoundChange.bind(this)
-    this.handlePriceHighestBoundChange = this.handlePriceHighestBoundChange.bind(this)
+    this.handleInputChange = this.handleInputChange.bind(this)
     this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
   }
@@ -80,27 +75,9 @@ class IndexPage extends React.Component {
     }
   }
 
-  handleSearchQueryChange (value) {
+  handleInputChange (key, value) {
     this.setState({
-      searchQuery: value
-    })
-  }
-
-  handlePriceChange (value) {
-    this.setState({
-      price: value
-    })
-  }
-
-  handlePriceLowestBoundChange (value) {
-    this.setState({
-      priceLowestBound: value
-    })
-  }
-
-  handlePriceHighestBoundChange (value) {
-    this.setState({
-      priceHighestBound: value
+      [key]: value
     })
   }
 
@@ -179,7 +156,12 @@ class IndexPage extends React.Component {
           <Form layout="inline">
             <FormGroup className="mb--0">
               {/* <ControlLabel>Search Products</ControlLabel> */}
-              <FormControl placeholder="Enter Product" name="searchQuery" value={searchQuery} onChange={this.handleSearchQueryChange} />
+              <FormControl
+                placeholder="Enter Product"
+                name="searchQuery"
+                value={searchQuery}
+                onChange={(value) => this.handleInputChange('searchQuery', value)}
+              />
             </FormGroup>
             <Button appearance="primary" className="mb--0" onClick={this.handleSearchButtonClick}>Search</Button>
           </Form>
@@ -210,7 +192,7 @@ class IndexPage extends React.Component {
                                   step="0.01"
                                   placeholder="0"
                                   value={priceLowestBound}
-                                  onChange={this.handlePriceLowestBoundChange}
+                                  onChange={(value) => this.handleInputChange('priceLowestBound', value)}
                                 />
                               </FlexboxGrid.Item>
                               <FlexboxGrid.Item componentClass={Col} colspan={11}>
@@ -221,7 +203,7 @@ class IndexPage extends React.Component {
                                   step="0.01"
                                   placeholder="0"
                                   value={priceHighestBound}
-                                  onChange={this.handlePriceHighestBoundChange}
+                                  onChange={(value) => this.handleInputChange('priceHighestBound', value)}
                                 />
                               </FlexboxGrid.Item>
                             </FlexboxGrid>
