@@ -11,7 +11,8 @@ import {
   Input,
   InputGroup,
   Divider,
-  SelectPicker
+  SelectPicker,
+  InputPicker
 } from 'rsuite'
 import Products from '../components/Products'
 import axios from 'axios'
@@ -20,7 +21,9 @@ import {
   calculateLowestPriceBound,
   calculateHighestPriceBound,
   getAllTags,
-  getAllCountries
+  getAllCountries,
+  sortByOptions,
+  sortOrderOptions
 } from '../lib/utils/helpers'
 
 class IndexPage extends React.Component {
@@ -36,9 +39,9 @@ class IndexPage extends React.Component {
       ...props,
       searchQuery: '',
       loading: false,
-      showTagsFilter: false,
       price: `${priceLowestBound}, ${priceHighestBound}`,
-      sort_attribute: '',
+      country: null,
+      sort_attribute: null,
       sort_order: 'asc',
       limit: 100,
       offset: 0
@@ -47,6 +50,8 @@ class IndexPage extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
+    this.filterProducts = this.filterProducts.bind(this)
+    this.fetchProductsViaQuery = this.fetchProductsViaQuery.bind(this)
   }
 
   static async getInitialProps () {
@@ -87,10 +92,12 @@ class IndexPage extends React.Component {
     }
   }
 
-  handleInputChange (key, value) {
+  handleInputChange (key, value, filterProducts = false) {
     this.setState({
       [key]: value
     })
+
+    if (filterProducts) setTimeout(() => this.filterProducts(), 500)
   }
 
   handlePriceRangeChange (rangeValue) {
@@ -103,13 +110,44 @@ class IndexPage extends React.Component {
   async handleSearchButtonClick (e) {
     e.preventDefault()
 
+    // reset filtering and sorting fields
+    this.setState({
+      country: null,
+      sort_attribute: null,
+      sort_order: 'asc',
+      limit: 100,
+      offset: 0
+    })
+
     const { searchQuery } = this.state
+    let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
+    setTimeout(() => this.fetchProductsViaQuery(queryUrl), 500)
+  }
+
+  filterProducts () {
+    const {
+      searchQuery,
+      country,
+      sort_attribute,
+      sort_order
+    } = this.state
+
+    let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
+    queryUrl = (country)
+      ? `${queryUrl}&country=${country}`
+      : queryUrl
+    queryUrl = (sort_attribute)
+      ? `${queryUrl}&sort_attribute=${sort_attribute}&sort_order=${sort_order}`
+      : queryUrl
+    this.fetchProductsViaQuery(queryUrl)
+  }
+
+  async fetchProductsViaQuery (queryUrl) {
     this.setState({
       loading: true
     })
 
     try{
-      const queryUrl = `${API_URL}/products/search?query=${searchQuery}`
       const { data } = await axios.get(queryUrl, {
         headers: {
           'Access-Control-Allow-Origin': `*`
@@ -157,43 +195,41 @@ class IndexPage extends React.Component {
       loading,
       priceLowestBound,
       priceHighestBound,
-      tags,
-      showTagsFilter,
-      countries
+      countries,
+      country,
+      sort_attribute,
+      sort_order
     } = this.state
 
     return (
       <>
-        <section className="section flex flex--centered">
-          <h2>Sprocket API Demo</h2>
-        </section>
-        <section className="section section--xs flex flex--centered bg--light">
-          <Form layout="inline">
-            <FormGroup className="mb--0">
-              {/* <ControlLabel>Search Products</ControlLabel> */}
-              <FormControl
-                placeholder="Search Products, title, price, country etc"
-                name="searchQuery"
-                value={searchQuery}
-                onChange={(value) => this.handleInputChange('searchQuery', value)}
-              />
-            </FormGroup>
-            <Button type="submit" appearance="primary" className="mb--0" onClick={this.handleSearchButtonClick}>Search</Button>
-          </Form>
-        </section>
-        <section className="section section--sm">
-          <h3 className="align--center mb--2">Products List</h3>
-          <FlexboxGrid justify="center">
-            <FlexboxGrid.Item componentClass={Col} colspan={24} md={22}>
-              {loading
-                ? (
-                  <div className="align--center">
-                    <Loader size="md" content="Loading Products ..." />
-                  </div>
-                )
-                : (
-                  <FlexboxGrid>
-                    <FlexboxGrid.Item className="mb--2" componentClass={Col} colspan={24} md={5}>
+        <div className="content--wrapper">
+          <section className="section flex flex--centered">
+            <h2>Sprocket API Demo</h2>
+          </section>
+          <section className="section section--xs flex flex--centered bg--light">
+            <Form layout="inline">
+              <FormGroup className="mb--0">
+                {/* <ControlLabel>Search Products</ControlLabel> */}
+                <FormControl
+                  placeholder="Search Products, title, price, country etc"
+                  name="searchQuery"
+                  value={searchQuery}
+                  onChange={(value) => this.handleInputChange('searchQuery', value)}
+                />
+              </FormGroup>
+              <Button type="submit" appearance="primary" className="mb--0" onClick={this.handleSearchButtonClick}>Search</Button>
+            </Form>
+          </section>
+          <section className="section section--sm">
+            <FlexboxGrid justify="center">
+              <FlexboxGrid.Item componentClass={Col} colspan={24} md={22}>
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item className="mb--2" componentClass={Col} colspan={24} xs={5}>
+                    <div className="mb--1">
+                      <h6 className="mb--05">
+                        <small>Filter By</small>
+                      </h6>
                       <div className="mb--1">
                         <h6 className="mb--1">Price</h6>
                         <div>
@@ -218,60 +254,75 @@ class IndexPage extends React.Component {
                               onChange={(value) => this.handleInputChange('priceHighestBound', value)}
                             />
                           </InputGroup>
-                          <Button block appearance="primary" className="mb--0" onClick={() => {console.log('filering by price')}}>Go</Button>
+                          <Button block type="submit" appearance="primary" className="mb--0" onClick={this.filterProducts}>Go</Button>
                         </div>
                       </div>
-                      {showTagsFilter &&
-                        (
-                          <>
-                            <Divider />
-                            <div className="mb--1">
-                              <h6 className="mb--1">Tags</h6>
-                              <div>
-                                <SelectPicker
-                                  data={tags}
-                                  appearance="default"
-                                  placeholder="Select Tag"
-                                  style={{ width: '100%' }}
-                                />
-                              </div>
-                            </div>
-                          </>
-                        )
-                      }
-                      <Divider />
                       <div className="mb--1">
-                        <h6 className="mb--1">Countries</h6>
+                      <h6 className="mb--1">Countries</h6>
+                      <div>
+                        <SelectPicker
+                          data={countries}
+                          appearance="default"
+                          placeholder="Select Country"
+                          value={country}
+                          style={{ width: '100%' }}
+                          onChange={(value) => this.handleInputChange('country', value, true)}
+                        />
+                      </div>
+                    </div>
+                    </div>
+                    <Divider />
+                    <div className="mb--1">
+                      <h6 className="mb--05">
+                        <small>Sort</small>
+                      </h6>
+                      <div className="mb--1">
+                        <h6 className="mb--1">Sort By</h6>
                         <div>
-                          <SelectPicker
-                            data={countries}
-                            appearance="default"
-                            placeholder="Select Country"
+                          <InputPicker
+                            data={sortByOptions}
+                            placeholder="Sort By"
                             style={{ width: '100%' }}
+                            value={sort_attribute}
+                            onChange={(value) => this.handleInputChange('sort_attribute', value, true)}
                           />
                         </div>
                       </div>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item componentClass={Col} colspan={24} md={1}>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item componentClass={Col} colspan={24} md={18}>
-                      <Products products={products} />
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )
-              }
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-        </section>
+                      <div className="mb--1">
+                        <h6 className="mb--1">Sort Order</h6>
+                        <div>
+                          <InputPicker
+                            data={sortOrderOptions}
+                            placeholder="Sort Order"
+                            style={{ width: '100%' }}
+                            value={sort_order}
+                            onChange={(value) => this.handleInputChange('sort_order', value, true)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item componentClass={Col} colspan={24} xs={18}>
+                    <h3 className="align--center mb--2">Products List</h3>
+                    {loading
+                      ? (
+                        <div className="align--center">
+                          <Loader size="md" content="Loading Products ..." />
+                        </div>
+                      )
+                      : (
+                          <Products products={products} />
+                        )
+                      }
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </section>
+        </div>
       </>
     )
   }
-}
-
-const inputGroupButtonPrimary = {
-  color: '#fff',
-  borderBottomRightRadius: '4px',
-  borderTopRightRadius: '4px',
 }
 
 const mapStateToProps = () => {
