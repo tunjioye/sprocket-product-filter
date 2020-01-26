@@ -18,6 +18,11 @@ import {
 import Products from '../components/Products'
 import axios from 'axios'
 import { API_URL } from '../config'
+import {
+  calculateLowestPriceBound,
+  calculateHighestPriceBound,
+  getAllTags
+} from '../lib/utils/helpers'
 
 class IndexPage extends React.Component {
   constructor (props) {
@@ -38,9 +43,6 @@ class IndexPage extends React.Component {
     this.handlePriceLowestBoundChange = this.handlePriceLowestBoundChange.bind(this)
     this.handlePriceHighestBoundChange = this.handlePriceHighestBoundChange.bind(this)
     this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this)
-    this.calculateLowestPriceBound = this.calculateLowestPriceBound.bind(this)
-    this.calculateHighestPriceBound = this.calculateHighestPriceBound.bind(this)
-    this.getAllTags = this.getAllTags.bind(this)
     this.handleSearchButtonClick = this.handleSearchButtonClick.bind(this)
   }
 
@@ -109,33 +111,6 @@ class IndexPage extends React.Component {
     })
   }
 
-  calculateLowestPriceBound (products) {
-    const productWithLowestPrice = products.reduce((prev, current) => {
-      return (prev.price > current.price) ? prev : current
-    })
-    return productWithLowestPrice.price
-  }
-
-  calculateHighestPriceBound (products) {
-    const productWithHighestPrice = products.reduce((prev, current) => {
-      return (prev.price < current.price) ? prev : current
-    })
-    return productWithHighestPrice.price
-  }
-
-  getAllTags (products) {
-    let allTags = products.reduce((prev, current) => {
-      return prev.concat(current.tags)
-    }, [])
-    allTags = allTags.map(tag => {
-      return {
-        label: tag,
-        value: tag
-      }
-    })
-    return allTags
-  }
-
   async handleSearchButtonClick () {
     const { searchQuery } = this.state
     this.setState({
@@ -154,9 +129,9 @@ class IndexPage extends React.Component {
         this.setState({
           products: data,
           searchQueryResponse: true,
-          priceLowestBound: this.calculateLowestPriceBound(data),
-          priceHighestBound: this.calculateHighestPriceBound(data),
-          tags: this.getAllTags(data)
+          priceLowestBound: calculateLowestPriceBound(data),
+          priceHighestBound: calculateHighestPriceBound(data),
+          tags: getAllTags(data)
         })
       }
     } catch (error) {
