@@ -22,7 +22,7 @@ const PaginationCode = props => {
             last
             ellipsis
             boundaryLinks
-            pages={parseInt(productsTotal/limit)}
+            pages={Math.ceil(productsTotal/limit)}
             maxButtons={5}
             activePage={currentPage}
             onSelect={(value) => handleInputChange('currentPage', value, true)}
