@@ -42,7 +42,7 @@ class IndexPage extends React.Component {
       price: `${priceLowestBound}, ${priceHighestBound}`,
       country: null,
       sort_attribute: null,
-      sort_order: 'asc',
+      sort_order: null,
       limit: 100,
       offset: 0
     }
@@ -112,9 +112,10 @@ class IndexPage extends React.Component {
 
     // reset filtering and sorting fields
     this.setState({
+      price: '0, 0',
       country: null,
       sort_attribute: null,
-      sort_order: 'asc',
+      sort_order: null,
       limit: 100,
       offset: 0
     })
@@ -132,14 +133,26 @@ class IndexPage extends React.Component {
       sort_order
     } = this.state
 
+    // set sort_order based on sort_attribute
+    if (sort_attribute && !sort_order) {
+      this.setState({
+        sort_order: 'asc'
+      })
+    }
+    if (!sort_attribute) {
+      this.setState({
+        sort_order: null
+      })
+    }
+
     let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
     queryUrl = (country)
       ? `${queryUrl}&country=${country}`
       : queryUrl
-    queryUrl = (sort_attribute)
+    queryUrl = (sort_attribute && sort_order)
       ? `${queryUrl}&sort_attribute=${sort_attribute}&sort_order=${sort_order}`
       : queryUrl
-    this.fetchProductsViaQuery(queryUrl)
+    setTimeout(() => this.fetchProductsViaQuery(queryUrl), 500)
   }
 
   async fetchProductsViaQuery (queryUrl) {
@@ -155,10 +168,13 @@ class IndexPage extends React.Component {
       })
 
       if (Array.isArray(data)) {
+        const priceLowestBound = calculateLowestPriceBound(data)
+        const priceHighestBound = calculateHighestPriceBound(data)
         this.setState({
           products: data,
-          priceLowestBound: calculateLowestPriceBound(data),
-          priceHighestBound: calculateHighestPriceBound(data),
+          price: `${priceLowestBound}, ${priceHighestBound}`,
+          priceLowestBound,
+          priceHighestBound,
           tags: getAllTags(data),
           countries: getAllCountries(data)
         })
@@ -183,9 +199,7 @@ class IndexPage extends React.Component {
 
   componentDidMount () {
     const { errorMessage } = this.props
-    if (errorMessage) {
-      alert(errorMessage)
-    }
+    if (errorMessage) alert(errorMessage)
   }
 
   render() {
@@ -195,6 +209,7 @@ class IndexPage extends React.Component {
       loading,
       priceLowestBound,
       priceHighestBound,
+      price,
       countries,
       country,
       sort_attribute,
@@ -304,6 +319,9 @@ class IndexPage extends React.Component {
                   </FlexboxGrid.Item>
                   <FlexboxGrid.Item componentClass={Col} colspan={24} xs={18}>
                     <h3 className="align--center mb--2">Products List</h3>
+                    <div className="align--center mb--1">
+                      result : <b>{products.length} products</b> | search : <b>{searchQuery}</b> | price range : <b>{price}</b> | country : <b>{country}</b> | sort by : <b>{sort_attribute}</b> | sort order : <b>{sort_order}</b>
+                    </div>
                     {loading
                       ? (
                         <div className="align--center">
