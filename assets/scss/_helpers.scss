@@ -11,6 +11,9 @@
   &--light {
     color: $light;
   }
+  &--primary {
+    color: $primary;
+  }
 }
 
 // Background Colors
@@ -23,6 +26,9 @@
   }
   &--light {
     background-color: $light;
+  }
+  &--primary {
+    background-color: $primary;
   }
 }
 
