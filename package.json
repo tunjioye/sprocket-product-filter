@@ -7,6 +7,10 @@
     "start": "next start",
     "heroku-postbuild": "npm run build"
   },
+  "engines": {
+    "node": "12.14.1",
+    "npm": ">=6.13.4"
+  },
   "dependencies": {
     "@zeit/next-css": "^0.2.1-canary.4",
     "@zeit/next-less": "^1.0.1",
