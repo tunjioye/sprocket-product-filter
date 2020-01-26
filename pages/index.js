@@ -121,8 +121,8 @@ class IndexPage extends React.Component {
   filterProducts () {
     const {
       searchQuery,
-      priceLowestBound,
-      priceHighestBound,
+      // priceLowestBound,
+      // priceHighestBound,
       country,
       sort_attribute,
       sort_order
@@ -141,9 +141,9 @@ class IndexPage extends React.Component {
     }
 
     let queryUrl = `${API_URL}/products/search?query=${searchQuery}`
-    queryUrl = (priceLowestBound && priceHighestBound)
-      ? `${queryUrl}&price=${priceLowestBound},${priceHighestBound}`
-      : queryUrl
+    // queryUrl = (priceLowestBound && priceHighestBound)
+    //   ? `${queryUrl}&price=${priceLowestBound},${priceHighestBound}`
+    //   : queryUrl
     queryUrl = (country)
       ? `${queryUrl}&country=${country}`
       : queryUrl
