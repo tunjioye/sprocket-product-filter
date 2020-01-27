@@ -5,8 +5,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "prestart": "yarn build",
-    "heroku-postbuild": "yarn build"
+    "heroku-postbuild": "npm run build"
   },
   "engines": {
     "node": "12"
