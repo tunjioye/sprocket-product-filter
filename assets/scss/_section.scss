@@ -1,0 +1,11 @@
+.section {
+  padding: 4.5rem 0.5rem;
+
+  &.section--sm {
+    padding: 3rem 0.5rem;
+  }
+
+  &.section--xs {
+    padding: 1.5rem 0.5rem;
+  }
+}

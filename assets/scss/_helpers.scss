@@ -1,0 +1,101 @@
+@import "variables";
+
+// Colors
+.text {
+  &--white {
+    color: $white;
+  }
+  &--black {
+    color: $black;
+  }
+  &--light {
+    color: $light;
+  }
+  &--primary {
+    color: $primary;
+  }
+}
+
+// Background Colors
+.bg {
+  &--white {
+    background-color: $white;
+  }
+  &--black {
+    background-color: $black;
+  }
+  &--light {
+    background-color: $light;
+  }
+  &--primary {
+    background-color: $primary;
+  }
+}
+
+// Text Alignent
+.align {
+  &--left {
+    text-align: left;
+  }
+  &--center {
+    text-align: center;
+  }
+  &--right {
+    text-align: right;
+  }
+}
+
+// Flex
+.flex {
+  display: flex;
+
+  &--centered {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+// Width
+.w {
+  &--100p,
+  &--full {
+    width: 100%;
+  }
+  &--50p,
+  &--half {
+    width: 50%;
+  }
+}
+
+// Margin
+.mb {
+  &--2 {
+    margin-bottom: 2rem;
+  }
+  &--1 {
+    margin-bottom: 1rem;
+  }
+  &--05 {
+    margin-bottom: .5rem;
+  }
+  &--0 {
+    margin-bottom: 0 !important;
+  }
+}
+
+// Font
+.font {
+  &__size--xlarge {
+    font-size: x-large;
+  }
+}
+
+.content--wrapper {
+  min-width: 75rem;
+  overflow-x: auto;
+}
+
+.responsive--wrapper {
+  min-width: 50rem;
+  overflow-x: auto;
+}
