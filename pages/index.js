@@ -12,8 +12,7 @@ import {
   InputGroup,
   Divider,
   SelectPicker,
-  InputPicker,
-  Pagination
+  InputPicker
 } from 'rsuite'
 import Products from '../components/Products'
 import PaginationCode from '../components/PaginationCode'

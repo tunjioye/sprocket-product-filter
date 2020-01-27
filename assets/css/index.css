@@ -1,0 +1,102 @@
+.section {
+  padding: 4.5rem 0.5rem;
+}
+
+.section.section--sm {
+  padding: 3rem 0.5rem;
+}
+
+.section.section--xs {
+  padding: 1.5rem 0.5rem;
+}
+
+.text--white {
+  color: #fff;
+}
+
+.text--black {
+  color: #000;
+}
+
+.text--light {
+  color: #f2f8ff;
+}
+
+.text--primary {
+  color: #3598ff;
+}
+
+.bg--white {
+  background-color: #fff;
+}
+
+.bg--black {
+  background-color: #000;
+}
+
+.bg--light {
+  background-color: #f2f8ff;
+}
+
+.bg--primary {
+  background-color: #3598ff;
+}
+
+.align--left {
+  text-align: left;
+}
+
+.align--center {
+  text-align: center;
+}
+
+.align--right {
+  text-align: right;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex--centered {
+  justify-content: center;
+  align-items: center;
+}
+
+.w--100p, .w--full {
+  width: 100%;
+}
+
+.w--50p, .w--half {
+  width: 50%;
+}
+
+.mb--2 {
+  margin-bottom: 2rem;
+}
+
+.mb--1 {
+  margin-bottom: 1rem;
+}
+
+.mb--05 {
+  margin-bottom: .5rem;
+}
+
+.mb--0 {
+  margin-bottom: 0 !important;
+}
+
+.font__size--xlarge {
+  font-size: x-large;
+}
+
+.content--wrapper {
+  min-width: 75rem;
+  overflow-x: auto;
+}
+
+.responsive--wrapper {
+  min-width: 50rem;
+  overflow-x: auto;
+}

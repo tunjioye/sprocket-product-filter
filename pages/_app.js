@@ -3,7 +3,7 @@ import React from 'react'
 import withReduxStore from '../lib/with-redux-store'
 import { Provider } from 'react-redux'
 import 'rsuite/lib/styles/index.less'
-import '../assets/scss/index.scss'
+import '../assets/css/index.css'
 
 class MyApp extends App {
   render () {
