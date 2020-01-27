@@ -79,6 +79,20 @@ class IndexPage extends React.Component {
     })
 
     setTimeout(() => {
+      if (key === 'sort_attribute') {
+        // set sort_order based on sort_attribute
+        if (this.state.sort_attribute && !this.state.sort_order) {
+          this.setState({
+            sort_order: 'desc'
+          })
+        }
+        if (!this.state.sort_attribute) {
+          this.setState({
+            sort_order: null
+          })
+        }
+      }
+
       if (filterProducts) this.filterProducts()
     }, 300)
   }
@@ -110,18 +124,6 @@ class IndexPage extends React.Component {
       limit,
       currentPage
     } = this.state
-
-    // set sort_order based on sort_attribute
-    if (sort_attribute && !sort_order) {
-      this.setState({
-        sort_order: 'desc'
-      })
-    }
-    if (!sort_attribute) {
-      this.setState({
-        sort_order: null
-      })
-    }
 
     // pagination
     let offset = (limit * currentPage) - limit
